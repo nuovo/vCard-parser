@@ -1,5 +1,14 @@
 BEGIN:VCARD
 VERSION:3.0
+N:John;Doe;W;Mr.;III,B.S.
+FN:John
+ADR;TYPE=HOME,WORK:;;123 Main,Apartment 101;Beverly Hills;CA;90210
+EMAIL;TYPE=HOME;TYPE=WORK:test@example.com
+EMAIL;TYPE=HOME;TYPE=WORK:test2@example.com
+EMAIL;TYPE=PREF:boshag@ciaweb.net
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
 N:Shagnasty;Bolivar;Odysseus;Mr.;III,B.S.
 FN:Bolivar Shagnasty
 ADR;TYPE=HOME,WORK:;;123 Main,Apartment 101;Beverly Hills;CA;90210

@@ -189,20 +189,13 @@
 							$Value['Type'] = $Type;
 						}
 					}
-					elseif (in_array($Key, self::$Spec_MultipleValueElements))
-					{
-						$Value = self::ParseMultipleTextValue($Value, $Key);
-
-						if ($Type)
-						{
-							$Value = array(
-								'Value' => $Value,
-								'Type' => $Type
-							);
-						}
-					}
 					else
 					{
+						if (in_array($Key, self::$Spec_MultipleValueElements))
+						{
+							$Value = self::ParseMultipleTextValue($Value, $Key);
+						}
+
 						if ($Type)
 						{
 							$Value = array(
@@ -256,7 +249,7 @@
 		 */
 		private static function Unescape($Text)
 		{
-			return str_replace(array('\:', '\;', ';', '\,', "\n"), array(':', ';', ';', ',', ''), $Text);
+			return str_replace(array('\:', '\;', '\,', "\n"), array(':', ';', ',', ''), $Text);
 		}
 
 		/**
