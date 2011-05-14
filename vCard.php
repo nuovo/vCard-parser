@@ -287,7 +287,19 @@
 		// Countable interface
 		public function count()
 		{
-			return count($this -> Data);
+			switch ($this -> Mode)
+			{
+				case self::MODE_ERROR:
+					return 0;
+					break;
+				case self::MODE_SINGLE:
+					return 1;
+					break;
+				case self::MODE_MULTIPLE:
+					return count($this -> Data);
+					break;
+			}
+			return 0;
 		}
 
 		// Iterator interface

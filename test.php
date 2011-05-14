@@ -1,7 +1,7 @@
 <?php
-	require_once('parser_class.php');
+	require_once('vCard.php');
 
-	$vCard = new vCard('test2.vcf');
+	$vCard = new vCard('Example3.0.vcf');
 
 	if (count($vCard) == 0)
 	{
@@ -11,8 +11,8 @@
 	elseif (count($vCard) == 1)
 	{
 		echo '<pre>';
-		print_r($vCard -> N);
-		print_r($vCard -> EMAIL);
+		print_r($vCard -> n);
+		print_r($vCard -> tel);
 		echo '</pre>';
 	}
 	// if the file contains multiple vCards, they are accessible as elements of an array
