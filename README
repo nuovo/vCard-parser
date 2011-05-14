@@ -1,4 +1,4 @@
-Nuovo's vCard-parser is a simple vCard file parser with the focus on ease of use.
+Nuovo/Nouveau vCard-parser is a simple vCard file parser with the focus on ease of use.
 
 The parser was written mostly because I couldn't find one that I was satisfied with - all those that I tried either failed with real world data or were too unwieldy or inconvenient, hence this parser.
 
