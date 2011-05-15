@@ -7,6 +7,7 @@ TITLE:Shrimp Man
 PHOTO;VALUE=URL;TYPE=GIF:http://www.example.com/dir_photos/my_photo.gif
 TEL;TYPE=WORK,VOICE:(111) 555-1212
 TEL;TYPE=HOME,VOICE:(404) 555-1212
+TEL;TYPE=HOME,TYPE=VOICE:(404) 555-1213
 ADR;TYPE=WORK:;;100 Waters Edge;Baytown;LA;30314;United States of America
 LABEL;TYPE=WORK:100 Waters Edge\nBaytown, LA 30314\nUnited States of America
 ADR;TYPE=HOME:;;42 Plantation St.;Baytown;LA;30314;United States of America

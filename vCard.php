@@ -37,6 +37,13 @@
 		);
 		private static $Spec_MultipleValueElements = array('nickname', 'categories');
 
+		private static $Spec_ElementTypes = array(
+			'email' => array('internet', 'x400', 'pref'),
+			'adr' => array('dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref'),
+			'label' => array('dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref'),
+			'tel' => array('home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs')
+		);
+
 		/**
 		 * vCard constructor
 		 *
@@ -144,38 +151,27 @@
 
 					if (count($KeyParts) > 1)
 					{
-						// Parameters are split into (key, value) pairs
-						$Parameters = array_map(function($Item)
-						{
-							return explode('=', strtolower($Item));
-						},
-						array_slice($KeyParts, 1));
+						$Parameters = self::ParseParameters($Key, array_slice($KeyParts, 1));
 
-						// And each parameter is checked whether anything can/should be done because of it
-						foreach ($Parameters as $Parameter)
+						foreach ($Parameters as $ParamKey => $ParamValue)
 						{
-							if (count($Parameter) != 2)
+							switch ($ParamKey)
 							{
-								continue;
-							}
-
-							if ($Parameter[0] == 'encoding')
-							{
-								if ($Parameter[1] == 'quoted-printable')
-								{
-									$Value = quoted_printable_decode($Value);
-								}
-							}
-							elseif ($Parameter[0] == 'charset')
-							{
-								if ($Parameter[1] != 'utf-8' && $Parameter[1] != 'utf8')
-								{
-									$Value = mb_convert_encoding($Value, 'UTF-8', $Parameter[1]);
-								}
-							}
-							elseif ($Parameter[0] == 'type')
-							{
-								$Type = explode(',', $Parameter[1]);
+								case 'encoding':
+									if ($Parameter[1] == 'quoted-printable')
+									{
+										$Value = quoted_printable_decode($Value);
+									}
+									break;
+								case 'charset':
+									if ($Parameter[1] != 'utf-8' && $Parameter[1] != 'utf8')
+									{
+										$Value = mb_convert_encoding($Value, 'UTF-8', $Parameter[1]);
+									}
+									break;
+								case 'type':
+									$Type = $ParamValue;
+									break;
 							}
 						}
 					}
@@ -280,6 +276,76 @@
 		private static function ParseMultipleTextValue($Text)
 		{
 			return explode(',', $Text);
+		}
+
+		/**
+		 * @access private
+		 */
+		private static function ParseParameters($Key, array $RawParams = null)
+		{
+			if (!$RawParams)
+			{
+				return array();
+			}
+
+			// Parameters are split into (key, value) pairs
+			$Parameters = array_map(function($Item)
+			{
+				return explode('=', strtolower($Item));
+			},
+			$RawParams);
+
+			$Type = array();
+			$Result = array();
+
+			// And each parameter is checked whether anything can/should be done because of it
+			foreach ($Parameters as $Index => $Parameter)
+			{
+				// Skipping empty elements
+				if (!$Parameter)
+				{
+					continue;
+				}
+
+				// Handling type parameters without the explicit TYPE parameter name (2.1 valid)
+				if (count($Parameter) == 1)
+				{
+					if (isset(self::$Spec_ElementTypes[$Key]) && in_array($Parameter, self::$Spec_ElementTypes[$Key]))
+					{
+						$Type[] = $Parameter;
+					}
+				}
+				elseif (count($Parameter) > 2)
+				{
+					$TempTypeParams = self::ParseParameters($Key, explode(',', $RawParams[$Index]));
+					if ($TempTypeParams['type'])
+					{
+						$Type = array_merge($Type, $TempTypeParams['type']);
+					}
+				}
+				else
+				{
+					if ($Parameter[0] == 'encoding')
+					{
+						if ($Parameter[1] == 'quoted-printable')
+						{
+							$Result['encoding'] = 'quoted-printable';
+						}
+					}
+					elseif ($Parameter[0] == 'charset')
+					{
+						$Result['charset'] = $Parameter[1];
+					}
+					elseif ($Parameter[0] == 'type')
+					{
+						$Type = array_merge($Type, explode(',', $Parameter[1]));
+					}
+				}
+			}
+
+			$Result['type'] = $Type;
+
+			return $Result;
 		}
 
 		// !Interface methods
