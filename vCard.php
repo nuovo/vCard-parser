@@ -1,17 +1,19 @@
 <?php
    /**
-	* vCard parser class, reads a vCard file and makes each of the values accessible as object members.
+	* vCard class for parsing a vCard and/or creating one
 	*
 	* @link https://github.com/nuovo/vCard-parser
 	* @author Roberts Bruveris, Martins Pilsetnieks
 	* @see RFC 2426, RFC 2425
-	* @version 0.2
+	* @version 0.3
 	*/
 	class vCard implements Countable, Iterator
 	{
 		const MODE_ERROR = 'error';
 		const MODE_SINGLE = 'single';
 		const MODE_MULTIPLE = 'multiple';
+
+		const endl = "\n";
 
 		/**
 		 * @var string Current object mode - error, single or multiple (for a single vCard within a file and multiple combined vCards)
@@ -74,7 +76,13 @@
 			}
 			else
 			{
-				throw new Exception('vCard: No content provided');
+				//throw new Exception('vCard: No content provided');
+				// Not necessary anymore as possibility to create vCards is added
+			}
+
+			if (!$this -> Path && !$this -> RawData)
+			{
+				return true;
 			}
 
 			// Counting the begin/end separators. If there aren't any or the count doesn't match, there is a problem with the file.
@@ -232,7 +240,138 @@
 			return null;
 		}
 
+		/**
+		 * Magic method for adding data to the vCard
+		 *
+		 * @param string Key
+		 * @param string Method call arguments. First element is value.
+		 *
+		 * @return vCard Current object for method chaining
+		 */
+		public function __call($Key, $Arguments)
+		{
+			if (!isset($this -> Data[$Key]))
+			{
+				$this -> Data[$Key] = array();
+			}
+
+			$Value = isset($Arguments[0]) ? $Arguments[0] : false;
+
+			if (!$Value)
+			{
+				return $this;
+			}
+
+			if (count($Arguments) > 1)
+			{
+				$Types = array_values(array_slice($Arguments, 1));
+
+				if (isset(self::$Spec_StructuredElements[strtolower($Key)]) &&
+					in_array($Arguments[1], self::$Spec_StructuredElements[strtolower($Key)])
+				)
+				{
+					$LastElementIndex = 0;
+
+					if (count($this -> Data[$Key]))
+					{
+						$LastElementIndex = count($this -> Data[$Key]) - 1;
+					}
+
+					if (isset($this -> Data[$Key][$LastElementIndex]))
+					{
+						if (empty($this -> Data[$Key][$LastElementIndex][$Types[0]]))
+						{
+							$this -> Data[$Key][$LastElementIndex][$Types[0]] = $Value;
+						}
+						else
+						{
+							$LastElementIndex++;
+						}
+					}
+
+					if (!isset($this -> Data[$Key][$LastElementIndex]))
+					{
+						$this -> Data[$Key][$LastElementIndex] = array(
+							$Types[0] => $Value
+						);
+					}
+				}
+				elseif (in_array($Key, array_keys(self::$Spec_ElementTypes)))
+				{
+					$this -> Data[$Key][] = array(
+						'Value' => $Value,
+						'Type' => $Types
+					);
+				}
+			}
+			else
+			{
+				$this -> Data[$Key][] = $Value;
+			}
+
+			return $this;
+		}
+
+		/**
+		 * Magic method for getting vCard content out
+		 *
+		 * @return string Raw vCard content
+		 */
+		public function __toString()
+		{
+			$Text = 'BEGIN:VCARD'.self::endl;
+			$Text .= 'VERSION:3.0'.self::endl;
+
+			foreach ($this -> Data as $Key => $Values)
+			{
+				$KeyUC = strtoupper($Key);
+
+				if (in_array($KeyUC, array('PHOTO', 'VERSION')))
+				{
+					continue;
+				}
+
+				foreach ($Values as $Index => $Value)
+				{
+					$Text .= $KeyUC;
+					if (is_array($Value) && isset($Value['Type']))
+					{
+						$Text .= ';TYPE='.self::PrepareTypeStrForOutput($Value['Type']);
+					}
+					$Text .= ':';
+
+					if (in_array($Key, array_keys(self::$Spec_StructuredElements)))
+					{
+						$PartArray = array();
+						foreach (self::$Spec_StructuredElements[$Key] as $Part)
+						{
+							$PartArray[] = isset($Value[$Part]) ? $Value[$Part] : '';
+						}
+						$Text .= implode(';', $PartArray);
+					}
+					elseif (is_array($Value) && in_array($Key, array_keys(self::$Spec_ElementTypes)))
+					{
+						$Text .= $Value['Value'];
+					}
+					else
+					{
+						$Text .= $Value;
+					}
+
+					$Text .= self::endl;
+				}
+			}
+
+			$Text .= 'END:VCARD'.self::endl;
+			return $Text;
+		}
+
 		// !Helper methods
+
+		private static function PrepareTypeStrForOutput($Type)
+		{
+			return implode(',', array_map('strtoupper', $Type));
+		}
 
 	 	/**
 		 * Removes the escaping slashes from the text.

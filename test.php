@@ -13,6 +13,7 @@
 		echo '<pre>';
 		print_r($vCard -> n);
 		print_r($vCard -> tel);
+		print_r($vCard);
 		echo '</pre>';
 	}
 	// if the file contains multiple vCards, they are accessible as elements of an array

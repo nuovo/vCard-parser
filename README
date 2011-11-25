@@ -34,7 +34,8 @@ See also:
 
 TODOs planned:
 - Add support for non-standard ("X-...") elements;
-- AGENT element should return another vCard object
-- Easier data access without the necessity to traverse multiple arrays.
+- AGENT element should return another vCard object;
+- Easier data access without the necessity to traverse multiple arrays;
+- Logos, photos, sounds should be made workable.
 
 http://www.nuovo.lv
