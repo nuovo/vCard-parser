@@ -1,12 +1,12 @@
 <?php
-   /**
-	* vCard class for parsing a vCard and/or creating one
-	*
-	* @link https://github.com/nuovo/vCard-parser
-	* @author Roberts Bruveris, Martins Pilsetnieks
-	* @see RFC 2426, RFC 2425
-	* @version 0.3
-	*/
+/**
+ * vCard class for parsing a vCard and/or creating one
+ *
+ * @link https://github.com/nuovo/vCard-parser
+ * @author Roberts Bruveris, Martins Pilsetnieks
+ * @see RFC 2426, RFC 2425
+ * @version 0.4
+*/
 	class vCard implements Countable, Iterator
 	{
 		const MODE_ERROR = 'error';
@@ -45,6 +45,8 @@
 			'label' => array('dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref'),
 			'tel' => array('home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs')
 		);
+
+		private static $Spec_FileElements = array('photo', 'logo', 'sound');
 
 		/**
 		 * vCard constructor
@@ -156,6 +158,7 @@
 					// Here additional parameters are parsed
 					$KeyParts = explode(';', $Key);
 					$Key = $KeyParts[0];
+					$Encoding = false;
 
 					if (count($KeyParts) > 1)
 					{
@@ -166,7 +169,12 @@
 							switch ($ParamKey)
 							{
 								case 'encoding':
-									if ($Parameter[1] == 'quoted-printable')
+									$Encoding = $ParamValue;
+									if ($ParamValue == 'b')
+									{
+										//$Value = base64_decode($Value);
+									}
+									elseif ($Parameters[1] == 'quoted-printable')
 									{
 										$Value = quoted_printable_decode($Value);
 									}
@@ -209,6 +217,11 @@
 						}
 					}
 
+					if (is_array($Value) && $Encoding)
+					{
+						$Value['Encoding'] = $Encoding;
+					}
+
 					if (!isset($this -> Data[$Key]))
 					{
 						$this -> Data[$Key] = array();
@@ -231,6 +244,19 @@
 		{
 			if (isset($this -> Data[$Key]))
 			{
+				if (in_array($Key, self::$Spec_FileElements))
+				{
+					$Value = $this -> Data[$Key];
+					foreach ($Value as $K => $V)
+					{
+						if (stripos($V['Value'], 'uri:') === 0)
+						{
+							$Value[$K]['Value'] = substr($V, 4);
+							$Value[$K]['Encoding'] = 'uri';
+						}
+					}
+					return $Value;
+				}
 				return $this -> Data[$Key];
 			}
 			elseif ($Key == 'Mode')
@@ -238,6 +264,49 @@
 				return $this -> Mode;
 			}
 			return null;
+		}
+
+		/**
+		 * Saves an embedded file
+		 *
+		 * @param string Key
+		 * @param int Index of the file, defaults to 0
+		 * @param string Target path where the file should be saved, including the filename
+		 *
+		 * @return bool Operation status
+		 */
+		public function SaveFile($Key, $Index = 0, $TargetPath = '')
+		{
+			if (!isset($this -> Data[$Key]))
+			{
+				return false;
+			}
+			if (!isset($this -> Data[$Key][$Index]))
+			{
+				return false;
+			}
+
+			// Returing false if it is an image URL
+			if (stripos($this -> Data[$Key][$Index]['Value'], 'uri:') === 0)
+			{
+				return false;
+			}
+
+			if (is_writable($TargetPath) || (!file_exists($TargetPath) && is_writable(dirname($TargetPath))))
+			{
+				$RawContent = $this -> Data[$Key][$Index]['Value'];
+				if (isset($this -> Data[$Key][$Index]['Encoding']) && $this -> Data[$Key][$Index]['Encoding'] == 'b')
+				{
+					$RawContent = base64_decode($RawContent);
+				}
+				$Status = file_put_contents($TargetPath, $RawContent);
+				return (bool)$Status;
+			}
+			else
+			{
+				throw new Exception('vCard: Cannot save file ('.$Key.'), target path not writable ('.$TargetPath.')');
+			}
+			return false;
 		}
 
 		/**
@@ -466,9 +535,9 @@
 				{
 					if ($Parameter[0] == 'encoding')
 					{
-						if ($Parameter[1] == 'quoted-printable')
+						if (in_array($Parameter[1], array('quoted-printable', 'b')))
 						{
-							$Result['encoding'] = 'quoted-printable';
+							$Result['encoding'] = $Parameter[1];
 						}
 					}
 					elseif ($Parameter[0] == 'charset')
