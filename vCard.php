@@ -89,8 +89,8 @@
 
 			// Counting the begin/end separators. If there aren't any or the count doesn't match, there is a problem with the file.
 			// If there is only one, this is a single vCard, if more, multiple vCards are combined.
-			$vCardBeginCount = substr_count($this -> RawData, 'BEGIN:VCARD');
-			$vCardEndCount = substr_count($this -> RawData, 'END:VCARD');
+			$vCardBeginCount = preg_match_all('{^BEGIN\:VCARD}miS', $this -> RawData);
+			$vCardEndCount = preg_match_all('{^END\:VCARD}miS', $this -> RawData);
 
 			if (($vCardBeginCount != $vCardEndCount) || !$vCardBeginCount)
 			{
@@ -126,7 +126,7 @@
 				$this -> RawData = str_replace("=\n", '', $this -> RawData);
 
 				// Joining multiple lines that are split with a soft wrap (space or tab on the beginning of the next line
-				$this -> RawData = str_replace(array("\n ", "\n\t"), '', $this -> RawData);
+				$this -> RawData = str_replace(array("\n ", "\n\t"), '-wrap-', $this -> RawData);
 
 				$Lines = explode("\n", $this -> RawData);
 
@@ -152,6 +152,21 @@
 						continue;
 					}
 
+					if ($Key == 'agent')
+					{
+						$Value = new vCard(false, str_replace('-wrap-', "\n", $Value));
+						if (!isset($this -> Data[$Key]))
+						{
+							$this -> Data[$Key] = array();
+						}
+						$this -> Data[$Key][] = $Value;
+						continue;
+					}
+					else
+					{
+						$Value = str_replace('-wrap-', '', $Value);
+					}
+
 					$Value = trim(self::Unescape($Value));
 					$Type = array();
 
@@ -174,7 +189,7 @@
 									{
 										//$Value = base64_decode($Value);
 									}
-									elseif ($Parameters[1] == 'quoted-printable')
+									elseif ($ParamValue == 'quoted-printable')
 									{
 										$Value = quoted_printable_decode($Value);
 									}
@@ -244,7 +259,11 @@
 		{
 			if (isset($this -> Data[$Key]))
 			{
-				if (in_array($Key, self::$Spec_FileElements))
+				if ($Key == 'agent')
+				{
+					return $this -> Data[$Key];
+				}
+				elseif (in_array($Key, self::$Spec_FileElements))
 				{
 					$Value = $this -> Data[$Key];
 					foreach ($Value as $K => $V)
@@ -533,20 +552,26 @@
 				}
 				else
 				{
-					if ($Parameter[0] == 'encoding')
+					switch ($Parameter[0])
 					{
-						if (in_array($Parameter[1], array('quoted-printable', 'b')))
-						{
-							$Result['encoding'] = $Parameter[1];
-						}
-					}
-					elseif ($Parameter[0] == 'charset')
-					{
-						$Result['charset'] = $Parameter[1];
-					}
-					elseif ($Parameter[0] == 'type')
-					{
-						$Type = array_merge($Type, explode(',', $Parameter[1]));
+						case 'encoding':
+							if (in_array($Parameter[1], array('quoted-printable', 'b')))
+							{
+								$Result['encoding'] = $Parameter[1];
+							}
+							break;
+						case 'charset':
+							$Result['charset'] = $Parameter[1];
+							break;
+						case 'type':
+							$Type = array_merge($Type, explode(',', $Parameter[1]));
+							break;
+						case 'value':
+							if (strtolower($Parameter[1]) == 'url')
+							{
+								$Result['encoding'] = 'uri';
+							}
+							break;
 					}
 				}
 			}

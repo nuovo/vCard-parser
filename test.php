@@ -16,6 +16,8 @@
 		print_r($vCard);
 		echo '</pre>';
 
+		print_r($vCard -> agent);
+
 		if ($vCard -> photo)
 		{
 			// If there is a photo or a logo, or a sound embedded in the file,
@@ -34,11 +36,18 @@
 			}
 
 			// It can also be saved to a file
-			$vCard -> SaveFile('photo', 0, 'test_image.jpg');
-			// The parameters are:
-			//	- name of the file we want to save (photo, logo or sound)
-			//	- index of the file in case of multiple files (defaults to 0)
-			//	- target path to save to, including the filenam
+			try
+			{
+				$vCard -> SaveFile('photo', 0, 'test_image.jpg');
+				// The parameters are:
+				//	- name of the file we want to save (photo, logo or sound)
+				//	- index of the file in case of multiple files (defaults to 0)
+				//	- target path to save to, including the filenam
+			}
+			catch (Exception $E)
+			{
+				// Target path not writable
+			}
 		}
 	}
 	// if the file contains multiple vCards, they are accessible as elements of an array
