@@ -89,8 +89,9 @@
 
 			// Counting the begin/end separators. If there aren't any or the count doesn't match, there is a problem with the file.
 			// If there is only one, this is a single vCard, if more, multiple vCards are combined.
-			$vCardBeginCount = preg_match_all('{^BEGIN\:VCARD}miS', $this -> RawData);
-			$vCardEndCount = preg_match_all('{^END\:VCARD}miS', $this -> RawData);
+			$Matches = array();
+			$vCardBeginCount = preg_match_all('{^BEGIN\:VCARD}miS', $this -> RawData, $Matches);
+			$vCardEndCount = preg_match_all('{^END\:VCARD}miS', $this -> RawData, $Matches);
 
 			if (($vCardBeginCount != $vCardEndCount) || !$vCardBeginCount)
 			{
