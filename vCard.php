@@ -5,7 +5,7 @@
  * @link https://github.com/nuovo/vCard-parser
  * @author Roberts Bruveris, Martins Pilsetnieks
  * @see RFC 2426, RFC 2425
- * @version 0.4
+ * @version 0.4.1
 */
 	class vCard implements Countable, Iterator
 	{
@@ -22,6 +22,15 @@
 
 		private $Path = '';
 		private $RawData = '';
+
+		/**
+		 * @var array Internal options container. Options:
+		 *	bool Collapse: If true, elements that can have multiple values but have only a single value are returned as that value instead of an array
+		 *		If false, an array is returned even if it has only one value.
+		 */
+		private $Options = array(
+			'Collapse' => false
+		);
 
 		/**
 		 * @var array Internal data container. Contains vCard objects for multiple vCards and just the data for single vCards.
@@ -53,10 +62,13 @@
 		 *
 		 * @param string Path to file, optional.
 		 * @param string Raw data, optional.
+		 * @param array Additional options, optional. Currently supported options:
+		 *	bool Collapse: If true, elements that can have multiple values but have only a single value are returned as that value instead of an array
+		 *		If false, an array is returned even if it has only one value.
 		 *
 		 * One of these parameters must be provided, otherwise an exception is thrown.
 		 */
-		public function __construct($Path = false, $RawData = false)
+		public function __construct($Path = false, $RawData = false, array $Options = null)
 		{
 			// Checking preconditions for the parser.
 			// If path is given, the file should be accessible.
@@ -85,6 +97,11 @@
 			if (!$this -> Path && !$this -> RawData)
 			{
 				return true;
+			}
+
+			if ($Options)
+			{
+				$this -> Options = array_merge($this -> Options, $Options);
 			}
 
 			// Counting the begin/end separators. If there aren't any or the count doesn't match, there is a problem with the file.
@@ -276,6 +293,11 @@
 						}
 					}
 					return $Value;
+				}
+
+				if ($this -> Options['Collapse'] && is_array($this -> Data[$Key]) && (count($this -> Data[$Key]) == 1))
+				{
+					return $this -> Data[$Key][0];
 				}
 				return $this -> Data[$Key];
 			}

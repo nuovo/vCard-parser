@@ -1,7 +1,15 @@
 <?php
 	require_once('vCard.php');
 
-	$vCard = new vCard('Example3.0.vcf');
+	$vCard = new vCard(
+		'Example3.0.vcf', // Path to vCard file
+		false, // Raw vCard text, can be used instead of a file
+		array( // Option array
+			// This lets you get single values for elements that could contain multiple values but have only one value.
+			//	This defaults to false so every value that could have multiple values is returned as array.
+			'Collapse' => true
+		)
+	);
 
 	if (count($vCard) == 0)
 	{
