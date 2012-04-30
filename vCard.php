@@ -649,5 +649,29 @@
 		{
 			return key($this -> Data);
 		}
+
+                /**
+                 * Magic method for easier access to vcard
+                 *
+                 * @return vCard object
+                 */
+                public function access()
+                {
+                        foreach ($this as $key => $value) {
+                                if ($key == "tel" || $key == "url" ||  $key == "email" || $key == "photo") {
+                                        for ($i=0;$i<sizeof($value); $i++) {
+                                                $card[$key][$value[$i]['Type'][0]] = $value[$i]['Value'];
+                                       }
+                                } elseif ($key == "adr" ) {
+                                        for ($i=0;$i<sizeof($value); $i++) {
+                                                $card[$key][$value[$i]['Type'][0]] = $value[$i];
+                                        }
+                                } else {
+                                        $card[$key] = $value[0];
+                                }
+                        }
+                        return $card;
+                }
+
 	}
 ?>
