@@ -275,6 +275,7 @@
 		 */
 		public function __get($Key)
 		{
+			$Key = strtolower($Key);
 			if (isset($this -> Data[$Key]))
 			{
 				if ($Key == 'agent')
@@ -305,7 +306,7 @@
 			{
 				return $this -> Mode;
 			}
-			return null;
+			return array();
 		}
 
 		/**
@@ -361,6 +362,8 @@
 		 */
 		public function __call($Key, $Arguments)
 		{
+			$Key = strtolower($Key);
+
 			if (!isset($this -> Data[$Key]))
 			{
 				$this -> Data[$Key] = array();
@@ -377,8 +380,8 @@
 			{
 				$Types = array_values(array_slice($Arguments, 1));
 
-				if (isset(self::$Spec_StructuredElements[strtolower($Key)]) &&
-					in_array($Arguments[1], self::$Spec_StructuredElements[strtolower($Key)])
+				if (isset(self::$Spec_StructuredElements[$Key]) &&
+					in_array($Arguments[1], self::$Spec_StructuredElements[$Key])
 				)
 				{
 					$LastElementIndex = 0;
@@ -436,6 +439,7 @@
 			foreach ($this -> Data as $Key => $Values)
 			{
 				$KeyUC = strtoupper($Key);
+				$Key = strtolower($Key);
 
 				if (in_array($KeyUC, array('PHOTO', 'VERSION')))
 				{
@@ -513,9 +517,11 @@
 			$Text = array_map('trim', explode(';', $Text));
 
 			$Result = array();
-			for ($i = 0; $i < count($Text) && $i < count(self::$Spec_StructuredElements[$Key]); $i++)
+			$Ctr = 0;
+
+			foreach (self::$Spec_StructuredElements[$Key] as $Index => $StructurePart)
 			{
-				$Result[self::$Spec_StructuredElements[$Key][$i]] = $Text[$i];
+				$Result[$StructurePart] = isset($Text[$Index]) ? $Text[$Index] : null;
 			}
 			return $Result;
 		}
