@@ -5,7 +5,7 @@
  * @link https://github.com/nuovo/vCard-parser
  * @author Roberts Bruveris, Martins Pilsetnieks
  * @see RFC 2426, RFC 2425
- * @version 0.4.1
+ * @version 0.4.2
 */
 	class vCard implements Countable, Iterator
 	{
