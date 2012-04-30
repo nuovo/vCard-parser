@@ -4,6 +4,7 @@ The parser was written mostly because I couldn't find one that I was satisfied w
 
 The parser can read both single and multiple vCards from a single file and with the help of PHP's magic methods and interfaces it can be written concisely. For example:
 
+    include('vCard.php');
     $vCard = new vCard('Example3.0.vcf');
 
 Get the number of vCards in the file
