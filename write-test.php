@@ -6,8 +6,15 @@
 	$vCard -> n('Doe', 'LastName');
 	$vCard -> tel('555-1111');
 	$vCard -> tel('555-1234', 'Work');
+	$vCard -> adr('', 'POBox');
+	$vCard -> adr('', 'ExtendedAddress');
+	$vCard -> adr('42 Plantation St.', 'StreetAddress');
+	$vCard -> adr('Baytown', 'Locality');
+	$vCard -> adr('LA', 'Region');
+	$vCard -> adr('30314', 'PostalCode');
+	$vCard -> adr('USA', 'Country');
 
-	$vCard = new vCard('Example3.0.vcf');
+	//$vCard = new vCard('Example3.0.vcf');
 
 	echo '<pre>'.$vCard.'</pre>';
 ?>

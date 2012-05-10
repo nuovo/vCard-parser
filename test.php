@@ -5,7 +5,7 @@
 	<style type="text/css">
 	body
 	{
-		font-family: Arial, sans-serif;
+		font-family: Corbel, Arial, sans-serif;
 		padding: 20px 50px;
 	}
 	div.Agent
@@ -43,7 +43,7 @@
 				{
 					echo '<img src="data:image/'.$Photo['Type'][0].';base64,'.$Photo['Value'].'" /><br />';
 				}
-				elseif ($Photo['Encoding'] == 'uri')
+				else
 				{
 					echo '<img src="'.$Photo['Value'].'" /><br />';
 				}
@@ -76,7 +76,14 @@
 			echo '<p><h4>Phone</h4>';
 			foreach ($vCard -> TEL as $Tel)
 			{
-				echo $Tel['Value'].' ('.implode(', ', $Tel['Type']).')<br />';
+				if (is_scalar($Tel))
+				{
+					echo $Tel.'<br />';
+				}
+				else
+				{
+					echo $Tel['Value'].' ('.implode(', ', $Tel['Type']).')<br />';
+				}
 			}
 			echo '</p>';
 		}
@@ -86,7 +93,40 @@
 			echo '<p><h4>Email</h4>';
 			foreach ($vCard -> EMAIL as $Email)
 			{
-				echo $Email['Value'].' ('.implode(', ', $Email['Type']).')<br />';
+				if (is_scalar($Email))
+				{
+					echo $Email;
+				}
+				else
+				{
+					echo $Email['Value'].' ('.implode(', ', $Email['Type']).')<br />';
+				}
+			}
+			echo '</p>';
+		}
+
+		if ($vCard -> URL)
+		{
+			echo '<p><h4>URL</h4>';
+			foreach ($vCard -> URL as $URL)
+			{
+				echo $URL.'<br />';
+			}
+			echo '</p>';
+		}
+
+		if ($vCard -> ADR)
+		{
+			foreach ($vCard -> ADR as $Address)
+			{
+				echo '<p><h4>Address ('.implode(', ', $Address['Type']).')</h4>';
+				echo 'Street address: <strong>'.($Address['StreetAddress'] ? $Address['StreetAddress'] : '-').'</strong><br />'.
+					'PO Box: <strong>'.($Address['POBox'] ? $Address['POBox'] : '-').'</strong><br />'.
+					'Extended address: <strong>'.($Address['ExtendedAddress'] ? $Address['ExtendedAddress'] : '-').'</strong><br />'.
+					'Locality: <strong>'.($Address['Locality'] ? $Address['Locality'] : '-').'</strong><br />'.
+					'Region: <strong>'.($Address['Region'] ? $Address['Region'] : '-').'</strong><br />'.
+					'ZIP/Post code: <strong>'.($Address['PostalCode'] ? $Address['PostalCode'] : '-').'</strong><br />'.
+					'Country: <strong>'.($Address['Country'] ? $Address['Country'] : '-').'</strong>';
 			}
 			echo '</p>';
 		}
@@ -127,7 +167,7 @@
 	{
 		foreach ($vCard as $Index => $vCardPart)
 		{
-			OutputvCard($vCard);
+			OutputvCard($vCardPart);
 		}
 	}
 ?>

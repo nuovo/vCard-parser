@@ -5,7 +5,7 @@
  * @link https://github.com/nuovo/vCard-parser
  * @author Roberts Bruveris, Martins Pilsetnieks
  * @see RFC 2426, RFC 2425
- * @version 0.4.2
+ * @version 0.4.3
 */
 	class vCard implements Countable, Iterator
 	{
@@ -213,9 +213,9 @@
 									}
 									break;
 								case 'charset':
-									if ($Parameter[1] != 'utf-8' && $Parameter[1] != 'utf8')
+									if ($ParamValue != 'utf-8' && $ParamValue != 'utf8')
 									{
-										$Value = mb_convert_encoding($Value, 'UTF-8', $Parameter[1]);
+										$Value = mb_convert_encoding($Value, 'UTF-8', $ParamValue);
 									}
 									break;
 								case 'type':
@@ -371,11 +371,6 @@
 
 			$Value = isset($Arguments[0]) ? $Arguments[0] : false;
 
-			if (!$Value)
-			{
-				return $this;
-			}
-
 			if (count($Arguments) > 1)
 			{
 				$Types = array_values(array_slice($Arguments, 1));
@@ -410,7 +405,7 @@
 						);
 					}
 				}
-				elseif (in_array($Key, array_keys(self::$Spec_ElementTypes)))
+				elseif (isset(self::$Spec_ElementTypes[$Key]))
 				{
 					$this -> Data[$Key][] = array(
 						'Value' => $Value,
@@ -418,7 +413,7 @@
 					);
 				}
 			}
-			else
+			elseif ($Value)
 			{
 				$this -> Data[$Key][] = $Value;
 			}
@@ -455,7 +450,7 @@
 					}
 					$Text .= ':';
 
-					if (in_array($Key, array_keys(self::$Spec_StructuredElements)))
+					if (isset(self::$Spec_StructuredElements[$Key]))
 					{
 						$PartArray = array();
 						foreach (self::$Spec_StructuredElements[$Key] as $Part)
@@ -464,7 +459,7 @@
 						}
 						$Text .= implode(';', $PartArray);
 					}
-					elseif (is_array($Value) && in_array($Key, array_keys(self::$Spec_ElementTypes)))
+					elseif (is_array($Value) && isset(self::$Spec_ElementTypes[$Key]))
 					{
 						$Text .= $Value['Value'];
 					}
@@ -566,9 +561,14 @@
 				// Handling type parameters without the explicit TYPE parameter name (2.1 valid)
 				if (count($Parameter) == 1)
 				{
-					if (isset(self::$Spec_ElementTypes[$Key]) && in_array($Parameter, self::$Spec_ElementTypes[$Key]))
+					// Checks if the type value is allowed for the specific element
+					// The second part of the "if" statement means that email elements can have non-standard types (see the spec)
+					if (
+						(isset(self::$Spec_ElementTypes[$Key]) && in_array($Parameter[0], self::$Spec_ElementTypes[$Key])) ||
+						($Key == 'email' && is_scalar($Parameter[0]))
+					)
 					{
-						$Type[] = $Parameter;
+						$Type[] = $Parameter[0];
 					}
 				}
 				elseif (count($Parameter) > 2)
