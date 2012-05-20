@@ -179,7 +179,7 @@
 						continue;
 					}
 
-					if ($Key == 'agent')
+					if ((strpos($Key, 'agent') === 0) && (stripos($Value, 'begin:vcard') !== false))
 					{
 						$Value = new vCard(false, str_replace('-wrap-', "\n", $Value));
 						if (!isset($this -> Data[$Key]))
