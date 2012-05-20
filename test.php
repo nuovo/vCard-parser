@@ -71,6 +71,15 @@
 			echo '<h3>Name: '.$Name['FirstName'].' '.$Name['LastName'].'</h3>';
 		}
 
+		foreach ($vCard -> ORG as $Organization)
+		{
+			echo '<h3>Organization: '.$Organization['Name'].
+				($Organization['Unit1'] || $Organization['Unit2'] ?
+					' ('.implode(', ', array($Organization['Unit1'], $Organization['Unit2'])).')' :
+					''
+				).'</h3>';
+		}
+
 		if ($vCard -> TEL)
 		{
 			echo '<p><h4>Phone</h4>';
@@ -110,7 +119,31 @@
 			echo '<p><h4>URL</h4>';
 			foreach ($vCard -> URL as $URL)
 			{
-				echo $URL.'<br />';
+				if (is_scalar($URL))
+				{
+					echo $URL.'<br />';
+				}
+				else
+				{
+					echo $URL['Value'].'<br />';
+				}
+			}
+			echo '</p>';
+		}
+
+		if ($vCard -> IMPP)
+		{
+			echo '<p><h4>Instant messaging</h4>';
+			foreach ($vCard -> IMPP as $IMPP)
+			{
+				if (is_scalar($IMPP))
+				{
+					echo $IMPP.'<br />';
+				}
+				else
+				{
+					echo $IMPP['Value'].'<br/ >';
+				}
 			}
 			echo '</p>';
 		}
@@ -136,15 +169,22 @@
 			echo '<h4>Agents</h4>';
 			foreach ($vCard -> AGENT as $Agent)
 			{
-				echo '<div class="Agent">';
-				OutputvCard($Agent);
-				echo '</div>';
+				if (is_scalar($Agent))
+				{
+					echo '<div class="Agent">'.$Agent.'</div>';
+				}
+				elseif (is_a($Agent, 'vCard'))
+				{
+					echo '<div class="Agent">';
+					OutputvCard($Agent);
+					echo '</div>';
+				}
 			}
 		}
 	}
 
 	$vCard = new vCard(
-		'Example.vcf', // Path to vCard file
+		'Example3.0.vcf', // Path to vCard file
 		false, // Raw vCard text, can be used instead of a file
 		array( // Option array
 			// This lets you get single values for elements that could contain multiple values but have only one value.

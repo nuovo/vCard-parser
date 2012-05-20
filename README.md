@@ -38,8 +38,9 @@ It is possible to specify an option to the vCard constructor that will let you a
 More on usage in [the wiki](https://github.com/nuovo/vCard-parser/wiki)
 
 See also:
-* http://tools.ietf.org/html/rfc2425
-* http://tools.ietf.org/html/rfc2426
+* http://tools.ietf.org/html/rfc2425 - A MIME Content-Type for Directory Information
+* http://tools.ietf.org/html/rfc2426 - vCard MIME directory profile
+* http://tools.ietf.org/html/rfc4770 - vCard Extensions for Instant Messaging (IM)
 
 TODOs planned:
 * Add support for non-standard ("X-...") elements;

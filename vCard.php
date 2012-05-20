@@ -52,7 +52,8 @@
 			'email' => array('internet', 'x400', 'pref'),
 			'adr' => array('dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref'),
 			'label' => array('dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref'),
-			'tel' => array('home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs')
+			'tel' => array('home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs'),
+			'impp' => array('personal', 'business', 'home', 'work', 'mobile', 'pref')
 		);
 
 		private static $Spec_FileElements = array('photo', 'logo', 'sound');
@@ -140,11 +141,18 @@
 			}
 			else
 			{
+				// Protect the BASE64 final = sign (detected by the line beginning with whitespace), otherwise the next replace will get rid of it
+				$this -> RawData = preg_replace('{(\n\s.+)=(\n)}', '$1-base64=-$2', $this -> RawData);
+
 				// Joining multiple lines that are split with a hard wrap and indicated by an equals sign at the end of line
+				// (quoted-printable-encoded values in v2.1 vCards)
 				$this -> RawData = str_replace("=\n", '', $this -> RawData);
 
 				// Joining multiple lines that are split with a soft wrap (space or tab on the beginning of the next line
 				$this -> RawData = str_replace(array("\n ", "\n\t"), '-wrap-', $this -> RawData);
+
+				// Restoring the BASE64 final equals sign (see a few lines above)
+				$this -> RawData = str_replace("-base64=-\n", "=\n", $this -> RawData);
 
 				$Lines = explode("\n", $this -> RawData);
 
@@ -162,6 +170,7 @@
 
 					// Key is transformed to lowercase because, even though the element and parameter names are written in uppercase,
 					//	it is quite possible that they will be in lower- or mixed case.
+					// The key is trimmed to allow for non-significant WSP characters as allowed by v2.1
 					$Key = strtolower(trim(self::Unescape($Key)));
 
 					// These two lines can be skipped as they aren't necessary at all.
@@ -203,16 +212,16 @@
 							{
 								case 'encoding':
 									$Encoding = $ParamValue;
-									if ($ParamValue == 'b')
+									if (in_array($ParamValue, array('b', 'base64')))
 									{
 										//$Value = base64_decode($Value);
 									}
-									elseif ($ParamValue == 'quoted-printable')
+									elseif ($ParamValue == 'quoted-printable') // v2.1
 									{
 										$Value = quoted_printable_decode($Value);
 									}
 									break;
-								case 'charset':
+								case 'charset': // v2.1
 									if ($ParamValue != 'utf-8' && $ParamValue != 'utf8')
 									{
 										$Value = mb_convert_encoding($Value, 'UTF-8', $ParamValue);
@@ -584,9 +593,9 @@
 					switch ($Parameter[0])
 					{
 						case 'encoding':
-							if (in_array($Parameter[1], array('quoted-printable', 'b')))
+							if (in_array($Parameter[1], array('quoted-printable', 'b', 'base64')))
 							{
-								$Result['encoding'] = $Parameter[1];
+								$Result['encoding'] = $Parameter[1] == 'base64' ? 'b' : $Parameter[1];
 							}
 							break;
 						case 'charset':
