@@ -3,9 +3,9 @@
  * vCard class for parsing a vCard and/or creating one
  *
  * @link https://github.com/nuovo/vCard-parser
- * @author Roberts Bruveris, Martins Pilsetnieks
+ * @author Martins Pilsetnieks, Roberts Bruveris
  * @see RFC 2426, RFC 2425
- * @version 0.4.3
+ * @version 0.4.4
 */
 	class vCard implements Countable, Iterator
 	{
