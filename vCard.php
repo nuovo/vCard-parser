@@ -5,7 +5,7 @@
  * @link https://github.com/nuovo/vCard-parser
  * @author Martins Pilsetnieks, Roberts Bruveris
  * @see RFC 2426, RFC 2425
- * @version 0.4.4
+ * @version 0.4.5
 */
 	class vCard implements Countable, Iterator
 	{
@@ -549,11 +549,11 @@
 			}
 
 			// Parameters are split into (key, value) pairs
-			$Parameters = array_map(function($Item)
+			$Parameters = array();
+			foreach ($RawParams as $Item)
 			{
-				return explode('=', strtolower($Item));
-			},
-			$RawParams);
+				$Parameters[] = explode('=', strtolower($Item));
+			}
 
 			$Type = array();
 			$Result = array();
