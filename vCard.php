@@ -202,6 +202,13 @@
 					$Key = $KeyParts[0];
 					$Encoding = false;
 
+					if (strpos($Key, 'item') === 0)
+					{
+						$TmpKey = explode('.', $Key, 2);
+						$Key = $TmpKey[1];
+						$ItemIndex = (int)str_ireplace('item', '' $TmpKey[0]);
+					}
+
 					if (count($KeyParts) > 1)
 					{
 						$Parameters = self::ParseParameters($Key, array_slice($KeyParts, 1));
