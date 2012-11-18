@@ -23,6 +23,7 @@
 	}
 	</style>
 </head>
+<body>
 
 <?php
 	require_once('vCard.php');
@@ -211,3 +212,5 @@
 		}
 	}
 ?>
+</body>
+</html>
