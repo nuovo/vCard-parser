@@ -241,6 +241,18 @@
 						}
 					}
 
+					// Checking files for colon-separated additional parameters (Apple's Address Book does this), for example, "X-ABCROP-RECTANGLE" for photos
+					if (in_array($Key, self::$Spec_FileElements) && isset($Parameters['encoding']) && in_array($Parameters['encoding'], array('b', 'base64')))
+					{
+						// If colon is present in the value, it must contain Address Book parameters
+						//	(colon is an invalid character for base64 so it shouldn't appear in valid files)
+						if (strpos($Value, ':') !== false)
+						{
+							$Value = explode(':', $Value);
+							$Value = array_pop($Value);
+						}
+					}
+
 					// Values are parsed according to their type
 					if (isset(self::$Spec_StructuredElements[$Key]))
 					{
