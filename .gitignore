@@ -1,4 +1,3 @@
 .DS_Store
 Downloads/*
-MP.vcf
-Issue12.vcf
+*.vcf
