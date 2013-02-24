@@ -134,9 +134,10 @@
 				{
 					// Prepending "BEGIN:VCARD" to the raw string because we exploded on that one.
 					// If there won't be the BEGIN marker in the new object, it will fail.
-
 					$SinglevCardRawData = 'BEGIN:VCARD'."\n".$SinglevCardRawData;
-					$this -> Data[] = new vCard(false, $SinglevCardRawData);
+
+					$ClassName = get_class($this);
+					$this -> Data[] = new $ClassName(false, $SinglevCardRawData);
 				}
 			}
 			else
@@ -181,7 +182,8 @@
 
 					if ((strpos($Key, 'agent') === 0) && (stripos($Value, 'begin:vcard') !== false))
 					{
-						$Value = new vCard(false, str_replace('-wrap-', "\n", $Value));
+						$ClassName = get_class($this);
+						$Value = new $ClassName(false, str_replace('-wrap-', "\n", $Value));
 						if (!isset($this -> Data[$Key]))
 						{
 							$this -> Data[$Key] = array();
