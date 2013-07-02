@@ -338,7 +338,21 @@
 			}
 			return array();
 		}
-
+		
+		/**
+		 * Magic method to check isset for the various vCard values as object members, e.g.
+		 *	a call to isset( $vCard -> fn ) checks existence of a value.
+		 *
+		 * @param string Key
+		 *
+		 * @return bool isset
+		 */
+		public function __isset($Key) {
+			$Key = strtolower($Key);
+			$val = $this->$Key;
+			return isset($val);
+		}
+		
 		/**
 		 * Saves an embedded file
 		 *
