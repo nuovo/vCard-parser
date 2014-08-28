@@ -603,7 +603,7 @@
 				}
 				elseif (count($Parameter) > 2)
 				{
-					if(!empty(explode(',', $RawParams[$Index], -1)))
+					if(count(explode(',', $RawParams[$Index], -1)) > 0)
 					{
 						$TempTypeParams = self::ParseParameters($Key, explode(',', $RawParams[$Index]));
 						if ($TempTypeParams['type'])
