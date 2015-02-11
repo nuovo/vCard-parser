@@ -49,7 +49,7 @@
 		private static $Spec_MultipleValueElements = array('nickname', 'categories');
 
 		private static $Spec_ElementTypes = array(
-			'email' => array('internet', 'x400', 'pref'),
+			'email' => array('internet', 'x400', 'pref', 'home', 'work'),
 			'adr' => array('dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref'),
 			'label' => array('dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref'),
 			'tel' => array('home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs'),
@@ -686,4 +686,3 @@
 			return key($this -> Data);
 		}
 	}
-
