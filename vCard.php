@@ -603,10 +603,13 @@
 				}
 				elseif (count($Parameter) > 2)
 				{
-					$TempTypeParams = self::ParseParameters($Key, explode(',', $RawParams[$Index]));
-					if ($TempTypeParams['type'])
+					if(count(explode(',', $RawParams[$Index], -1)))
 					{
-						$Type = array_merge($Type, $TempTypeParams['type']);
+						$TempTypeParams = self::ParseParameters($Key, explode(',', $RawParams[$Index]));
+						if ($TempTypeParams['type'])
+						{
+							$Type = array_merge($Type, $TempTypeParams['type']);
+						}
 					}
 				}
 				else
