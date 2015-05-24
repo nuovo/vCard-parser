@@ -1,4 +1,4 @@
-<!DOCTYPE html>   
+<!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8" />
@@ -40,13 +40,13 @@
 		{
 			foreach ($vCard -> PHOTO as $Photo)
 			{
-				if ($Photo['Encoding'] == 'b')
+				if ($Photo['encoding'] == 'b')
 				{
-					echo '<img src="data:image/'.$Photo['Type'][0].';base64,'.$Photo['Value'].'" /><br />';
+					echo '<img src="data:image/'.$Photo['type'][0].';base64,'.$Photo['value'].'" /><br />';
 				}
 				else
 				{
-					echo '<img src="'.$Photo['Value'].'" /><br />';
+					echo '<img src="'.$Photo['value'].'" /><br />';
 				}
 
 				/*
@@ -69,14 +69,14 @@
 
 		foreach ($vCard -> N as $Name)
 		{
-			echo '<h3>Name: '.$Name['FirstName'].' '.$Name['LastName'].'</h3>';
+			echo '<h3>Name: '.$Name['firstname'].' '.$Name['lastname'].'</h3>';
 		}
 
 		foreach ($vCard -> ORG as $Organization)
 		{
-			echo '<h3>Organization: '.$Organization['Name'].
-				($Organization['Unit1'] || $Organization['Unit2'] ?
-					' ('.implode(', ', array($Organization['Unit1'], $Organization['Unit2'])).')' :
+			echo '<h3>Organization: '.$Organization['name'].
+				($Organization['unit1'] || $Organization['unit2'] ?
+					' ('.implode(', ', array($Organization['unit1'], $Organization['unit2'])).')' :
 					''
 				).'</h3>';
 		}
@@ -92,7 +92,7 @@
 				}
 				else
 				{
-					echo $Tel['Value'].' ('.implode(', ', $Tel['Type']).')<br />';
+					echo $Tel['value'].' ('.implode(', ', $Tel['type']).')<br />';
 				}
 			}
 			echo '</p>';
@@ -109,7 +109,7 @@
 				}
 				else
 				{
-					echo $Email['Value'].' ('.implode(', ', $Email['Type']).')<br />';
+					echo $Email['value'].' ('.implode(', ', $Email['type']).')<br />';
 				}
 			}
 			echo '</p>';
@@ -126,7 +126,7 @@
 				}
 				else
 				{
-					echo $URL['Value'].'<br />';
+					echo $URL['value'].'<br />';
 				}
 			}
 			echo '</p>';
@@ -143,7 +143,7 @@
 				}
 				else
 				{
-					echo $IMPP['Value'].'<br/ >';
+					echo $IMPP['value'].'<br/ >';
 				}
 			}
 			echo '</p>';
@@ -153,14 +153,14 @@
 		{
 			foreach ($vCard -> ADR as $Address)
 			{
-				echo '<p><h4>Address ('.implode(', ', $Address['Type']).')</h4>';
-				echo 'Street address: <strong>'.($Address['StreetAddress'] ? $Address['StreetAddress'] : '-').'</strong><br />'.
-					'PO Box: <strong>'.($Address['POBox'] ? $Address['POBox'] : '-').'</strong><br />'.
-					'Extended address: <strong>'.($Address['ExtendedAddress'] ? $Address['ExtendedAddress'] : '-').'</strong><br />'.
-					'Locality: <strong>'.($Address['Locality'] ? $Address['Locality'] : '-').'</strong><br />'.
-					'Region: <strong>'.($Address['Region'] ? $Address['Region'] : '-').'</strong><br />'.
-					'ZIP/Post code: <strong>'.($Address['PostalCode'] ? $Address['PostalCode'] : '-').'</strong><br />'.
-					'Country: <strong>'.($Address['Country'] ? $Address['Country'] : '-').'</strong>';
+				echo '<p><h4>Address ('.implode(', ', $Address['type']).')</h4>';
+				echo 'Street address: <strong>'.($Address['streetaddress'] ? $Address['streetaddress'] : '-').'</strong><br />'.
+					'PO Box: <strong>'.($Address['pobox'] ? $Address['pobox'] : '-').'</strong><br />'.
+					'Extended address: <strong>'.($Address['extendedaddress'] ? $Address['extendedaddress'] : '-').'</strong><br />'.
+					'Locality: <strong>'.($Address['locality'] ? $Address['locality'] : '-').'</strong><br />'.
+					'Region: <strong>'.($Address['region'] ? $Address['region'] : '-').'</strong><br />'.
+					'ZIP/Post code: <strong>'.($Address['postalcode'] ? $Address['postalcode'] : '-').'</strong><br />'.
+					'Country: <strong>'.($Address['country'] ? $Address['country'] : '-').'</strong>';
 			}
 			echo '</p>';
 		}
