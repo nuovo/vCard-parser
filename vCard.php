@@ -120,8 +120,10 @@
 			$this -> Mode = $vCardBeginCount == 1 ? vCard::MODE_SINGLE : vCard::MODE_MULTIPLE;
 
 			// Removing/changing inappropriate newlines, i.e., all CRs or multiple newlines are changed to a single newline
-			$this -> RawData = str_replace("\r", "\n", $this -> RawData);
-			$this -> RawData = preg_replace('{(\n+)}', "\n", $this -> RawData);
+
+			// MCA: removed, this break crlf vcard specification, all line dilimiter are CRLF
+			//$this -> RawData = str_replace("\r", "\n", $this -> RawData); 
+			//$this -> RawData = preg_replace('{(\n)+}', "\n", $this -> RawData);
 
 			// In multiple card mode the raw text is split at card beginning markers and each
 			//	fragment is parsed in a separate vCard object.
@@ -133,9 +135,11 @@
 
 				foreach ($this -> RawData as $SinglevCardRawData)
 				{
+					// mca: remove \n and \r at start
+					//$SinglevCardRawData=ltrim($SinglevCardRawData);
 					// Prepending "BEGIN:VCARD" to the raw string because we exploded on that one.
 					// If there won't be the BEGIN marker in the new object, it will fail.
-					$SinglevCardRawData = 'BEGIN:VCARD'."\n".$SinglevCardRawData;
+					$SinglevCardRawData = 'BEGIN:VCARD'.$SinglevCardRawData;
 
 					$ClassName = get_class($this);
 					$this -> Data[] = new $ClassName(false, $SinglevCardRawData);
@@ -143,20 +147,20 @@
 			}
 			else
 			{
-				// Protect the BASE64 final = sign (detected by the line beginning with whitespace), otherwise the next replace will get rid of it
-				$this -> RawData = preg_replace('{(\n\s.+)=(\n)}', '$1-base64=-$2', $this -> RawData);
-
 				// Joining multiple lines that are split with a hard wrap and indicated by an equals sign at the end of line
 				// (quoted-printable-encoded values in v2.1 vCards)
-				$this -> RawData = str_replace("=\n", '', $this -> RawData);
+				$this -> RawData = str_replace("=\r\n", '', $this -> RawData);
+
+				// Protect the BASE64 final = sign (detected by the line beginning with whitespace), otherwise the next replace will get rid of it
+				$this -> RawData = preg_replace('{(\r\n\s.+)=(\r\n)}', '$1-base64=-$2', $this -> RawData);
 
 				// Joining multiple lines that are split with a soft wrap (space or tab on the beginning of the next line
-				$this -> RawData = str_replace(array("\n ", "\n\t"), '-wrap-', $this -> RawData);
+				$this -> RawData = str_replace(array("\r\n ", "\r\n\t"), '-wrap-', $this -> RawData);
 
 				// Restoring the BASE64 final equals sign (see a few lines above)
-				$this -> RawData = str_replace("-base64=-\n", "=\n", $this -> RawData);
+				$this -> RawData = str_replace("-base64=-\r\n", "=\r\n", $this -> RawData);
 
-				$Lines = explode("\n", $this -> RawData);
+				$Lines = explode("\r\n", $this -> RawData);
 
 				foreach ($Lines as $Line)
 				{
@@ -211,6 +215,7 @@
 						$Key = $TmpKey[1];
 						$ItemIndex = (int)str_ireplace('item', '', $TmpKey[0]);
 					}
+
 
 					if (count($KeyParts) > 1)
 					{
