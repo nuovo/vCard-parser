@@ -127,7 +127,8 @@
 			//	fragment is parsed in a separate vCard object.
 			if ($this -> Mode == self::MODE_MULTIPLE)
 			{
-				$this -> RawData = explode('BEGIN:VCARD', $this -> RawData);
+				//Cannot use "explode", because we need to ignore, for example, 'AGENT:BEGIN:VCARD'
+				$this -> RawData = preg_split('{^BEGIN\:VCARD}miS', $this -> RawData);
 				$this -> RawData = array_filter($this -> RawData);
 
 				foreach ($this -> RawData as $SinglevCardRawData)
