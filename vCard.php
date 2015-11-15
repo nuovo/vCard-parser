@@ -295,6 +295,16 @@
 			}
 		}
 
+		public function getKeyList()
+		{
+			$keylist=array();
+			if (isset($this -> Data))
+			{
+			  foreach($this -> Data as $key => $val)
+			    $keylist[]=$key;
+			}
+			return $keylist;
+		}
 		/**
 		 * Magic method to get the various vCard values as object members, e.g.
 		 *	a call to $vCard -> N gets the "N" value
@@ -317,7 +327,7 @@
 					$Value = $this -> Data[$Key];
 					foreach ($Value as $K => $V)
 					{
-						if (stripos($V['Value'], 'uri:') === 0)
+						if (isset($V['Value'])&&stripos($V['Value'], 'uri:') === 0)
 						{
 							$Value[$K]['Value'] = substr($V, 4);
 							$Value[$K]['Encoding'] = 'uri';
