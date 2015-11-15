@@ -604,7 +604,8 @@
 			$Parameters = array();
 			foreach ($RawParams as $Item)
 			{
-				$Parameters[] = explode('=', strtolower($Item));
+				// try to correct issue https://github.com/nuovo/vCard-parser/issues/20
+				$Parameters[] = explode('=', strtolower($Item),2);
 			}
 
 			$Type = array();
