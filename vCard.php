@@ -295,6 +295,11 @@
 			}
 		}
 
+		/**
+		 * method to get key list of the current vcard
+		 *
+		 * @return array list of key
+		 */
 		public function getKeyList()
 		{
 			$keylist=array();
@@ -305,6 +310,7 @@
 			}
 			return $keylist;
 		}
+
 		/**
 		 * Magic method to get the various vCard values as object members, e.g.
 		 *	a call to $vCard -> N gets the "N" value
