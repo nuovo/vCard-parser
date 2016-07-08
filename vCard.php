@@ -5,7 +5,7 @@
  * @link https://github.com/nuovo/vCard-parser
  * @author Martins Pilsetnieks, Roberts Bruveris
  * @see RFC 2426, RFC 2425
- * @version 0.4.8
+ * @version 0.4.9
 */
 	class vCard implements Countable, Iterator
 	{
@@ -41,15 +41,15 @@
 		 * @static Parts of structured elements according to the spec.
 		 */
 		private static $Spec_StructuredElements = array(
-			'n' => array('LastName', 'FirstName', 'AdditionalNames', 'Prefixes', 'Suffixes'),
-			'adr' => array('POBox', 'ExtendedAddress', 'StreetAddress', 'Locality', 'Region', 'PostalCode', 'Country'),
-			'geo' => array('Latitude', 'Longitude'),
-			'org' => array('Name', 'Unit1', 'Unit2')
+			'n' => array('lastname', 'firstname', 'additionalnames', 'prefixes', 'suffixes'),
+			'adr' => array('pobox', 'extendedaddress', 'streetaddress', 'locality', 'region', 'postalcode', 'country'),
+			'geo' => array('latitude', 'longitude'),
+			'org' => array('name', 'unit1', 'unit2')
 		);
 		private static $Spec_MultipleValueElements = array('nickname', 'categories');
 
 		private static $Spec_ElementTypes = array(
-			'email' => array('internet', 'x400', 'pref'),
+			'email' => array('internet', 'x400', 'pref', 'home', 'work'),
 			'adr' => array('dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref'),
 			'label' => array('dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref'),
 			'tel' => array('home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs'),
@@ -267,7 +267,7 @@
 						$Value = self::ParseStructuredValue($Value, $Key);
 						if ($Type)
 						{
-							$Value['Type'] = $Type;
+							$Value['type'] = $Type;
 						}
 					}
 					else
@@ -280,15 +280,15 @@
 						if ($Type)
 						{
 							$Value = array(
-								'Value' => $Value,
-								'Type' => $Type
+								'value' => $Value,
+								'type' => $Type
 							);
 						}
 					}
 
 					if (is_array($Value) && $Encoding)
 					{
-						$Value['Encoding'] = $Encoding;
+						$Value['encoding'] = $Encoding;
 					}
 
 					if (!isset($this -> Data[$Key]))
@@ -339,10 +339,10 @@
 					$Value = $this -> Data[$Key];
 					foreach ($Value as $K => $V)
 					{
-						if (isset($V['Value'])&&stripos($V['Value'], 'uri:') === 0)
+						if (isset($V['Value']) && stripos($V['Value'], 'uri:') === 0)
 						{
-							$Value[$K]['Value'] = substr($V, 4);
-							$Value[$K]['Encoding'] = 'uri';
+							$Value[$K]['value'] = substr($V, 4);
+							$Value[$K]['encoding'] = 'uri';
 						}
 					}
 					return $Value;
@@ -396,15 +396,15 @@
 			}
 
 			// Returing false if it is an image URL
-			if (stripos($this -> Data[$Key][$Index]['Value'], 'uri:') === 0)
+			if (stripos($this -> Data[$Key][$Index]['value'], 'uri:') === 0)
 			{
 				return false;
 			}
 
 			if (is_writable($TargetPath) || (!file_exists($TargetPath) && is_writable(dirname($TargetPath))))
 			{
-				$RawContent = $this -> Data[$Key][$Index]['Value'];
-				if (isset($this -> Data[$Key][$Index]['Encoding']) && $this -> Data[$Key][$Index]['Encoding'] == 'b')
+				$RawContent = $this -> Data[$Key][$Index]['value'];
+				if (isset($this -> Data[$Key][$Index]['encoding']) && $this -> Data[$Key][$Index]['encoding'] == 'b')
 				{
 					$RawContent = base64_decode($RawContent);
 				}
@@ -439,10 +439,10 @@
 
 			if (count($Arguments) > 1)
 			{
-				$Types = array_values(array_slice($Arguments, 1));
+				$Types = array_map('strtolower', array_values(array_slice($Arguments, 1)));
 
 				if (isset(self::$Spec_StructuredElements[$Key]) &&
-					in_array($Arguments[1], self::$Spec_StructuredElements[$Key])
+					in_array(strtolower($Arguments[1]), self::$Spec_StructuredElements[$Key])
 				)
 				{
 					$LastElementIndex = 0;
@@ -474,8 +474,8 @@
 				elseif (isset(self::$Spec_ElementTypes[$Key]))
 				{
 					$this -> Data[$Key][] = array(
-						'Value' => $Value,
-						'Type' => $Types
+						'value' => $Value,
+						'type' => $Types
 					);
 				}
 			}
@@ -510,9 +510,9 @@
 				foreach ($Values as $Index => $Value)
 				{
 					$Text .= $KeyUC;
-					if (is_array($Value) && isset($Value['Type']))
+					if (is_array($Value) && isset($Value['type']))
 					{
-						$Text .= ';TYPE='.self::PrepareTypeStrForOutput($Value['Type']);
+						$Text .= ';TYPE='.self::PrepareTypeStrForOutput($Value['type']);
 					}
 					$Text .= ':';
 
@@ -527,7 +527,7 @@
 					}
 					elseif (is_array($Value) && isset(self::$Spec_ElementTypes[$Key]))
 					{
-						$Text .= $Value['Value'];
+						$Text .= $Value['value'];
 					}
 					else
 					{
@@ -640,10 +640,13 @@
 				}
 				elseif (count($Parameter) > 2)
 				{
-					$TempTypeParams = self::ParseParameters($Key, explode(',', $RawParams[$Index]));
-					if ($TempTypeParams['type'])
+					if(count(explode(',', $RawParams[$Index], -1)) > 0)
 					{
-						$Type = array_merge($Type, $TempTypeParams['type']);
+						$TempTypeParams = self::ParseParameters($Key, explode(',', $RawParams[$Index]));
+						if ($TempTypeParams['type'])
+						{
+							$Type = array_merge($Type, $TempTypeParams['type']);
+						}
 					}
 				}
 				else
