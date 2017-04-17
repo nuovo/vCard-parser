@@ -392,6 +392,23 @@
 		 */
 		public function __call($Key, $Arguments)
 		{
+			$args = array_merge(array($Key), $Arguments);
+			return call_user_func_array(array($this, 'setAttr'), $args);
+		}
+
+		/**
+		 * Method for adding data to the vCard, made generic fo wierd tags like X-*
+		 *
+		 * @param string Key
+		 * @param string Method call arguments. First element is value.
+		 *
+		 * @return vCard Current object for method chaining
+		 */
+		public function setAttr()
+		{
+			$Arguments = func_get_args();
+			$Key = array_shift($Arguments);
+
 			$Key = strtolower($Key);
 
 			if (!isset($this -> Data[$Key]))
@@ -513,7 +530,7 @@
 			return implode(',', array_map('strtoupper', $Type));
 		}
 
-	 	/**
+		/**
 		 * Removes the escaping slashes from the text.
 		 *
 		 * @access private

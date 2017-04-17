@@ -14,6 +14,8 @@
 	$vCard -> adr('30314', 'PostalCode');
 	$vCard -> adr('USA', 'Country');
 
+  $vCard -> setAttr('X-GENERIC', 'Dummy');
+
 	//$vCard = new vCard('Example3.0.vcf');
 
 	echo '<pre>'.$vCard.'</pre>';
