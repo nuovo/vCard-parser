@@ -19,6 +19,8 @@ In the single-vCard mode every element is accessible directly.
         print_r($vCard -> tel);
     }
 
+In order to support generic keys, like X-*, use the method setAttr instead.
+
 In the multiple-vCard mode the object can be used as an array to retrieve separate vCard objects for each vCard in the file.
 
     else
