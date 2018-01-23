@@ -573,7 +573,7 @@
 			$Parameters = array();
 			foreach ($RawParams as $Item)
 			{
-				$Parameters[] = explode('=', strtolower($Item));
+				$Parameters[] = array_filter(explode('=', strtolower($Item)));
 			}
 
 			$Type = array();
@@ -603,7 +603,7 @@
 				}
 				elseif (count($Parameter) > 2)
 				{
-					$TempTypeParams = self::ParseParameters($Key, explode(',', $RawParams[$Index]));
+				$TempTypeParams = self::ParseParameters($Key, explode(',', $RawParams[$Index]));
 					if ($TempTypeParams['type'])
 					{
 						$Type = array_merge($Type, $TempTypeParams['type']);
